@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>版本</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css" />
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            background: rgba(0, 0, 0, 0.0)
+        }
+        /*body {
+            background: #000;
+            opacity: 0.25;
+        }*/
+
+        .updateBox {
+            /*display: none;*/
+            z-index: 9
+        }
+
+        .maskBox {
+            height: 62.9rem;
+            width: 100%;
+            background: #0a0a0a;
+            border: #0a0a0a solid 1px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0.25;
+            /*z-index: 998;*/
+        }
+
+        .updateBox_content {
+            width: 80%;
+            position: fixed;
+            top: 26%;
+            left: 10%;
+            height: 16.5rem;
+            background-image: url('../image/login/update_bg2.png');
+            background-size: 100%;
+            background-repeat: no-repeat;
+            z-index: 999;
+            opacity: 1
+        }
+
+        .topIcon {
+            width: 92%;
+            height: 7rem;
+            /* border: #000 solid 1px; */
+            position: relative;
+            top: -3rem;
+        }
+
+        .topIcon img {
+            width: 100%;
+        }
+
+        .middleText .textTitle {
+            text-align: center;
+            width: 100%;
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 0.7rem;
+        }
+
+        .discribtion {
+            text-align: center;
+            width: 70%;
+            margin-left: 15%;
+            font-size: 14px;
+        }
+
+        .bottomBtn {
+            background: #40ade2;
+            height: 2.25rem;
+            line-height: 2.25rem;
+            color: white;
+            text-align: center;
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            /*top: 13.6rem;*/
+            /* border: #000 solid 1px; */
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+
+        .icon_close {
+            width: 2rem;
+            height: 2rem;
+            line-height: 2rem;
+            position: absolute;
+            right: -1.2rem;
+            top: -1.2rem;
+            text-align: center;
+            /*border: red solid 1px;*/
+            /* border-radius: 0.55rem; */
+            /* background: rgb(158, 158, 158); */
+            /* padding: 0.4rem; */
+        }
+
+        .icon_close i {
+            width: 0.85rem;
+            color: white;
+            font-weight: 900;
+            font-size: 0.8rem;
+            border-radius: 0.5rem;
+            padding: 0.15rem;
+            background: rgb(158, 158, 158);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="updateBox">
+        <div class="maskBox"></div>
+        <div class="updateBox_content">
+            <div class="icon_close" tapmode onclick="closePage()"><i class="aui-iconfont aui-icon-close">  </i></div>
+            <div class="topIcon">
+                <img src="../image/login/update_logo.png">
+            </div>
+            <div class="middleText">
+                <div class="textTitle" id="textTitle">发现新版本！</div>
+                <div class="discribtion" id="discribtion">--更新内容--</div>
+            </div>
+            <div class="bottomBtn" tapmode onclick="updateApp()">立即更新</div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript" src="../script/aui-toast.js"></script>
+<script type="text/javascript">
+    var source;
+    // var state;
+    // var savePath;
+    var updateTip;
+    var newVersion
+    apiready = function() {
+        api.parseTapmode()
+        source = api.pageParam.source
+            // state = api.pageParam.state
+            // savePath = api.pageParam.savePath
+        updateTip = api.pageParam.updateTip
+        newVersion = api.pageParam.newVersion
+            // alert("SOURCE:" + source + "||UPDATETIP:" + updateTip)
+        $("#textTitle").html("发现新版本！（V" + newVersion + "）")
+        $("#discribtion").html(updateTip)
+        api.addEventListener({
+            name: 'showAlarm'
+        }, function(ret, err) {
+            api.closeWin()
+        });
+    };
+
+    // 升级
+    function updateApp() {
+        // alert(source)
+        if (api.systemType == "android") {
+            api.download({
+                url: source,
+                report: true
+            }, function(ret, err) {
+                if (ret && 0 == ret.state) { /* 下载进度 */
+                    api.toast({
+                        msg: "正在下载应用" + ret.percent + "%",
+                        duration: 2000
+                    });
+                }
+                if (ret && 1 == ret.state) { /* 下载完成 */
+                    var savePath = ret.savePath;
+                    api.installApp({
+                        appUri: savePath
+                    });
+                }
+            });
+        }
+        if (api.systemType == "ios") {
+            api.installApp({
+                appUri: source
+            });
+        }
+    }
+
+    // 关闭当前页面
+    function closePage() {
+        api.closeFrame();
+    }
+</script>
+
+</html>

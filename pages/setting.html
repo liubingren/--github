@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>设置</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css" />
+
+    <style>
+        .page-content {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: url('../image/setting/set_bg.png');
+            background-size: 100%;
+            /*background-position: center;*/
+        }
+
+        .top-box {
+            width: 100%;
+            height: 10rem;
+        }
+
+        .header-row {
+            height: 3.7rem;
+            line-height: 5.3rem;
+            font-weight: 800;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .page-title {
+            text-align: center;
+        }
+
+        .headRound {
+            width: 100%;
+            text-align: center;
+            padding-top: 2.8rem;
+        }
+
+        .headRound img {
+            width: 4rem;
+            height: 4rem;
+            /*margin:5rem auto;*/
+            background: url('../image/setting/icon_user.png');
+            background-size: 100%;
+            background-repeat: no-repeat;
+        }
+
+        .loginBtn {
+            background: linear-gradient(#9ed8f6, #007ac6);
+            height: 1.8rem;
+            line-height: 1.8rem;
+            width: 28%;
+            margin-left: 36%;
+            text-align: center;
+            border-radius: 0.3rem;
+            color: white;
+            letter-spacing: 1px;
+        }
+
+        .msgBox {
+            text-align: center;
+            width: 100%;
+            font-size: 0.6rem;
+        }
+
+        .msgBox p:first-of-type {
+            font-size: 0.8rem;
+            font-weight: 900;
+        }
+        /*下面是列表*/
+
+        .ul-box {
+            margin-top: 1rem;
+            border: #eee solid 1px;
+            padding: 0 !important;
+        }
+
+        #lists {
+            background-color: #ffffff;
+            width: 100%;
+        }
+
+        .aui-list-item .aui-list-item-inner {
+            height: 2.2rem;
+            line-height: 2.2rem;
+            display: inline-block;
+        }
+
+        .aui-list-item.quitLogin .aui-list-item-inner {
+            text-align: center;
+            color: #a1a1a1;
+        }
+
+        .aui-list-item:nth-of-type(1) .aui-list-item-inner {
+            text-indent: 2rem;
+            background: url(../image/setting/userset.png) no-repeat left center;
+            background-size: 7%;
+            font-size: 0.7rem
+        }
+
+        .aui-list-item:nth-of-type(2) .aui-list-item-inner {
+            text-indent: 2rem;
+            background: url(../image/setting/version.png) no-repeat left center;
+            font-size: 0.7rem;
+            background-size: 7%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-content">
+        <div class="top-box">
+            <div class="header-row aui-row">
+                <div class="page-title ">设置</div>
+            </div>
+            <!-- <div class="loginBtn" tapmode onclick="intoLogin()">立即登录</div> -->
+            <!-- <div class="msgBox">
+                <p id=""></p>
+                <p id=""></p>
+            </div> -->
+        </div>
+        <div class="ul-box">
+            <ul class="aui-list aui-list-in" id="lists">
+                <li class="aui-list-item" tapmode onclick="goToSetting();">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        个人设置
+                    </div>
+                </li>
+                <li class="aui-list-item" tapmode onclick="goToVersion();">
+                    <div class="aui-list-item-inner aui-list-item-arrow">
+                        版本
+                    </div>
+                </li>
+                <li class="aui-list-item quitLogin" onclick="quitLogin();">
+                    <div class="aui-list-item-inner">
+                        退出登录
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript" src="../script/aui-toast.js"></script>
+
+<script type="text/javascript">
+    var toast
+    apiready = function() {
+        toast = new auiToast()
+        api.addEventListener({
+            name: 'quitLogin'
+        }, function(ret, err) {
+            quitLogin()
+        });
+    };
+
+    function quitLogin() {
+        // var ajpush = api.require('ajpush');
+        // var param = {
+        //     alias: '',
+        //     tags: []
+        // };
+        // ajpush.bindAliasAndTags(param, function(ret) {
+        //     var statusCode = ret.statusCode;
+        // });
+        $.ajax({
+                type: "post",
+                url: HEADER + 'app/meter/logout.do',
+                success: function(data) {
+                    console.log(JSON.stringify(data));
+                    if (data.code == 1) {
+                        $api.rmStorage("userInfo");
+                        alert("请重新登录！")
+                            // toast.success({
+                            //     title: "操作成功，请重新登录！",
+                            //     duration: 2000
+                            // });
+                            // setTimeout(function() {
+                        api.openWin({
+                            name: 'login',
+                            url: './login.html'
+                        });
+                        // }, 300)
+                    } else {
+                        toast.fail({
+                            title: data.msg,
+                            duration: 2000
+                        });
+                    }
+                }
+            })
+            // 退出登录角标清0
+            // ajpush.setBadge({ // badge: 0 // });
+    }
+
+    function goToSetting() {
+        api.openWin({
+            name: 'personalmsgSet',
+            url: './personalmsgSet.html'
+        })
+    }
+
+    function goToVersion() {
+        api.openWin({
+            name: 'version',
+            url: './version.html'
+        })
+    }
+</script>
+
+</html>

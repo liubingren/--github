@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>电表</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css" />
+    <style>
+        html,
+        body {
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .aui-bar.aui-bar-nav.aui-row {
+            color: #ffffff;
+            background: rgb(45, 140, 240)!important;
+            border: none;
+        }
+
+        .aui-title {
+            font-size: 1.2rem;
+        }
+
+        .tebBtnRow-wrap {
+            position: fixed !important;
+            top: 3.5rem !important;
+            width: 100%;
+            height: 40px;
+            z-index: 100;
+            background: rgb(45, 140, 240);
+        }
+
+        .tebBtnRow {
+            position: absolute;
+            width: 92%;
+            left: 50%;
+            margin-left: -46%;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .tebBtnRow div {
+            height: 100%;
+            border: 1px solid #ffffff;
+            background: rgb(45, 140, 240);
+        }
+
+        .tebBtnRow div:first-of-type {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .tebBtnRow div:nth-of-type(2) {
+            border-left: none;
+            border-right: none;
+        }
+
+        .tebBtnRow div:last-of-type {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .tebBtnRow .tebBtnRow-active {
+            background: #FFFFFF;
+            color: rgb(45, 140, 240);
+            font-size: 0.7rem;
+            padding: 0.22rem;
+        }
+
+        .tebBtnRow-blur {
+            padding: 0.22rem;
+            font-size: 0.7rem;
+            background: rgb(45, 140, 240);
+            color: #ffffff;
+        }
+
+        .aui-content {
+            position: absolute !important;
+            top: 5.5rem !important;
+            width: 100%;
+            height: 100%;
+            margin-top: 0px;
+            background: rgb(235, 236, 238);
+        }
+
+        .aui-content .tabContent {
+            width: 92%;
+            margin: auto;
+        }
+
+        img.meter-online {
+            /*background: url("../image/meters/meter_icon.png") left top no-repeat;*/
+        }
+
+        .aui-content .aui-list .aui-list-item {
+            margin-top: 7px;
+            background-color: #ffffff;
+            border-radius: 8px;
+        }
+
+        .aui-list .aui-list-item-text {
+            flex-flow: row;
+            justify-content: flex-start;
+        }
+
+        .aui-list .aui-list-item-text i.aui-icon-more {
+            color: rgb(45, 140, 240);
+        }
+
+        .aui-list .aui-list-item-title {
+            max-width: 90%;
+            width: 90%;
+        }
+
+        .aui-list-item-right.aui-btn.intoDetailBtn {
+            background: rgb(45, 140, 240);
+            color: #ffffff;
+            border-radius: 10px;
+        }
+
+        .aui-list .aui-list-item {
+            padding-left: 0.25rem;
+        }
+
+        .aui-list .aui-list-item-inner {
+            padding-right: 0.25rem!important;
+        }
+
+        .aui-icon-more {
+            position: relative;
+            font-weight: bold;
+        }
+
+        .aui-icon-more div {
+            position: absolute;
+            top: 20px;
+            right: 0px;
+            background: #ffffff;
+            width: 5rem;
+            height: 5.7rem;
+            z-index: 999;
+            box-shadow: 0px 0px 2px rgb(45, 140, 240);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .aui-icon-more p {
+            padding: 0.25rem;
+            border-bottom: 0.05rem solid rgb(235, 235, 235);
+        }
+
+        .aui-icon-more p:first-of-type {
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .aui-icon-more p:not(:first-of-type):hover {
+            background: rgb(235, 236, 238);
+        }
+
+        .aui-icon-more p i {
+            margin-right: 5px;
+            color: rgb(45, 140, 240);
+            font-weight: bold;
+        }
+
+        .offline .aui-list-item-text span,
+        .aui-list .offline .aui-list-item-text i.aui-icon-more {
+            color: rgb(187, 190, 196);
+        }
+
+        .offline .aui-list-item-right.aui-btn.intoDetailBtn {
+            background: rgb(187, 190, 196);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="aui-bar aui-bar-nav aui-row">
+        <div class="aui-pull-left aui-btn aui-col-xs-3" tapmode></div>
+        <div class="aui-title aui-col-xs-6" style='text-align:center;'>电表</div>
+        <div class="aui-pull-right" style='text-align:right!important;' tapmode onclick='goToAddMeter()'>添加</div>
+    </header>
+    <div class="tebBtnRow-wrap">
+        <div class="tebBtnRow">
+            <div class="aui-col-xs-4 tebBtnRow-active" id="all" tapmode onclick="clickTab(this,2)" data-times="2">全部</div>
+            <div class="aui-col-xs-4 tebBtnRow-blur" id="online" tapmode onclick="clickTab(this,1)" data-times="1">在线</div>
+            <div class="aui-col-xs-4 tebBtnRow-blur" id="offline" tapmode onclick="clickTab(this,0)" data-times="0">离线</div>
+        </div>
+    </div>
+
+    <div class="aui-content">
+        <!-- <div id="cover"></div> -->
+        <div class="tabContent">
+            <ul class="aui-list aui-media-list" id="lists">
+            </ul>
+        </div>
+        <div class="aui-card-list-footer aui-text-center loadmore" tapmode onclick="showMore()">查看更多</div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript" src="../script/aui-dialog.js"></script>
+<script type="text/javascript">
+    var PAGE = 1;
+    var STATUS; //保存当前tab的值
+    var dataList; //列表数据
+    var currentTarget;
+
+    var dialog = new auiDialog({})
+
+    apiready = function() {
+      api.parseTapmode();
+        clickTab("#all", 2);
+        api.addEventListener({
+            name: 'addMeters'
+        }, function(ret, err) {
+            clickTab("#all", 2);
+        });
+
+        api.addEventListener({
+            name: 'initMsg'
+        }, function(ret, err) {
+            clickTab("#all", 2);
+        });
+    };
+
+    //切换tab
+    function clickTab(dom, status) {
+        var online_status;
+
+        online_status = parseInt(status);
+        STATUS = online_status;
+        currentTarget=dom;
+
+        $(".tebBtnRow div").removeClass("tebBtnRow-active").addClass("tebBtnRow-blur");
+        $(dom).removeClass("tebBtnRow-blur").addClass("tebBtnRow-active");
+        initMetersList(online_status);
+    }
+
+    //初始化电表列表
+    function initMetersList(online_status, type) {
+        var online_status = online_status;
+        if (online_status == 2) {
+            online_status = '';
+        }
+
+        if (type) {
+            PAGE++;
+        } else {
+            PAGE = 1;
+        }
+        $.ajax({
+            type: 'get',
+            data: {
+                page: PAGE,
+                pagesize: 10,
+                online_status: online_status
+            },
+            url: HEADER + 'app/meter/check_getMeterForPage.do',
+            success: function(data) {
+              console.log(JSON.stringify(data));
+                dataList = data.data.list;
+                var str = '';
+                if (dataList.length > 0) {
+                    $(".loadmore").html("查看更多");
+                    for (var i = 0; i < dataList.length; i++) {
+                        var status;
+                        var hasClick;
+                        var imgSrc = '../image/meters/meter_icon.png" class="aui-list-img-md';
+                        if (STATUS == 2) {
+                            if (dataList[i].online_status == "在线") {
+                                status = 'online';
+                                // hasClick = 'onclick="showOperate(this)"';
+                            } else {
+                                status = 'offline';
+                                // hasClick = '';
+                                imgSrc = '../image/meters/meter_outline.png" class="aui-list-img-md';
+                            }
+                        } else if (STATUS === 0) {
+                            status = 'offline';
+                            // hasClick = '';
+                            imgSrc = '../image/meters/meter_outline.png" class="aui-list-img-md';
+                        } else {
+                            status = 'online';
+                            // hasClick = 'onclick="showOperate(this)"';
+                        }
+                        str += '<li id="' + dataList[i].id + '" class="aui-list-item aui-list-item-middle ' + status + '">';
+                        str += '        <div class="aui-media-list-item-inner">';
+                        str += '            <div class="aui-list-item-media" style="width: 3rem;">';
+                        str += '                <img src="' + imgSrc + '" class="aui-list-img-md">';
+                        str += '            </div>';
+                        str += '            <div class="aui-list-item-inner">';
+                        str += '                <div class="aui-list-item-text aui-font-size-12">';
+                        str += '                    <div class="aui-list-item-title aui-font-size-12"><span>小区名称:' + dataList[i].location_name + '</span></div>';
+                        // str += '                    <i tapmode class="aui-iconfont aui-icon-more" ' + hasClick + '>';
+                        str += '                    <i tapmode class="aui-iconfont aui-icon-more" onclick="showOperate(this)">';
+                        str += '                      <div>';
+                        str += '                        <p>操作</p>';
+                        str += '                        <p index="' + i + '" tapmode onclick="goToPrepayment(this)"><i class="aui-iconfont aui-icon-money">￥</i>预付费</p>';
+                        str += '                        <p tapmode onclick="openDeleteDialog(this)"><i class="aui-iconfont aui-icon-trash"></i>删除电表</p>';
+                        str += '                      </div>';
+                        str += '                    </i>';
+                        str += '                </div>';
+                        str += '                <div class="aui-list-item-text aui-list-item-title aui-font-size-12">';
+                        str += '                    <span>电表编号:</span><span>' + dataList[i].mid + '</span>';
+                        str += '                </div>';
+                        str += '                <div class="aui-list-item-text aui-list-item-title aui-font-size-12">';
+                        str += '                    <span>签约人:</span><span>' + dataList[i].user_name + '</span>';
+                        str += '                </div>';
+                        str += '                <div class="aui-list-item-text">';
+                        str += '                    <div class="aui-list-item-title aui-font-size-12 aui-text-darkgray">';
+                        str += '                      <div><span>剩余金额(元):</span><span>' + dataList[i].remaining_balance + '</span></div>';
+                        str += '                      <div><span>剩余电量(Kwh):</span><span>' + dataList[i].remaining_battery + '</span></div>';
+                        str += '                    </div>';
+                        str += '                    <div tapmode  class="aui-list-item-right aui-btn  intoDetailBtn" onclick="goToOrderList()">订单列表</div>';
+                        str += '                </div>';
+                        str += '            </div>';
+                        str += '        </div>';
+                        str += '    </li>';
+                    }
+                } else {
+                    $(".loadmore").html("暂无更多");
+                }
+
+                if (type) {
+                    $("#lists").append(str);
+                } else {
+                    $("#lists").html(str);
+                }
+            }
+        })
+    }
+    //加载更多
+    function showMore() {
+        initMetersList(STATUS, 'showMore')
+    }
+    //打开删除对话框
+    function openDeleteDialog(dom) {
+        dialog.alert({
+            title: "提示信息",
+            msg: '确定要删除该电表？',
+            buttons: ['取消', '确定']
+        }, function(ret) {
+            if (ret&&ret.buttonIndex==2) {
+              var id = $(dom).closest('li').attr("id");
+              deleteMeter(id);
+            }
+        })
+
+    }
+
+    //显示操作列表
+    function showOperate(dom) {
+        var thisDom = $(dom).find("div");
+        if (thisDom.css("display") == "none") {
+            thisDom.css("display", "block");
+        } else {
+            thisDom.css("display", "none");
+        }
+    }
+    //前往添加电表页面
+    function goToAddMeter() {
+        api.openWin({
+            name: 'addMeters',
+            url: 'addMeters.html'
+        });
+    }
+    //前往预付费页面
+    function goToPrepayment(dom) {
+        var index = $(dom).attr("index");
+        api.openWin({
+            name: 'Prepayment',
+            url: 'Prepayment.html',
+            pageParam: dataList[index]
+        });
+    }
+    //删除电表
+    function deleteMeter(id) {
+        $.ajax({
+            type: 'post',
+            data: {
+                id:id
+            },
+            url: HEADER + 'app/meter/delete_deleteMeter.do',
+            success: function(data) {
+               if(data.code==1){
+                 api.alert({
+                     title: "提示信息",
+                     msg: "删除成功!"
+                 });
+                 clickTab(currentTarget,STATUS);
+               }else{
+                 api.alert({
+                     title: "提示信息",
+                     msg: "删除失败!"
+                 });
+               }
+            }
+        })
+    }
+    function goToOrderList(){
+      api.openWin({
+          name: 'orderList',
+          url: 'orderList.html'
+      });
+    }
+    $('.aui-icon-more p:not(:first-of-type)').click(function(ev) {
+        ev.stopPropagation(); //仅阻止冒泡
+    });
+</script>
+
+</html>

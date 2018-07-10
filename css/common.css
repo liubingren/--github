@@ -1,0 +1,49 @@
+html {
+    background: #ebecee
+}
+
+body {
+    font-family: "微软雅黑";
+    background: #ebecee;
+    color: #484848;
+}
+
+.aui-content {
+    margin-top: 3.6rem;
+}
+
+.aui-text-blue {
+    color: #2d8cf0 !important;
+    /*font-weight: 900;*/
+}
+
+.loadmore {
+    text-align: center;
+    font-size: 0.7rem;
+    color: #888;
+    letter-spacing: 1px;
+    margin: 0.3rem 0 1rem 0;
+}
+
+header {
+    background: white;
+    padding-top: 1.25rem;
+    position: fixed !important;
+    top: 0 !important;
+}
+
+.aui-bar-nav {
+    top: 0;
+    line-height: 2.25rem;
+    background-color: #fff !important;
+    color: #1c2438;
+    border-bottom: #535f6b solid 1px;
+}
+
+.aui-bar-nav .aui-btn .aui-iconfont {
+    font-size: 0.9rem;
+    line-height: 1.25rem;
+    padding: 0;
+    margin: 0;
+    color: #000;
+}

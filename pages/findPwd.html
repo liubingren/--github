@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>版本</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css" />
+    <style>
+        html,
+        body {
+            background: white
+        }
+
+        .input-box {
+            padding: 0 10%;
+        }
+
+        .aui-list-item {
+            border-bottom: #eee solid 1px;
+            padding: 0.25rem !important;
+        }
+
+        .aui-list-item-inner {
+            position: relative;
+            left: -0.2rem;
+        }
+
+        .btn-row {
+            margin-top: 2rem;
+        }
+
+        .cancelBtn {
+            height: 2rem;
+            line-height: 2rem;
+            background: white;
+            border: #535f6b solid 1px;
+            width: 30%;
+            margin: 0 5% 0 15%;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        .submitBtn {
+            color: white;
+            height: 2rem;
+            line-height: 2rem;
+            margin: 0 15% 0 5%;
+            background: #2d8cf0;
+            width: 30%;
+            text-align: center;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="aui-bar aui-bar-nav">
+        <div class="aui-pull-left aui-btn" onclick="turnBack()" tapmode>
+            <span class="aui-iconfont aui-icon-left"></span>
+        </div>
+        <div class="aui-title">找回密码</div>
+    </header>
+    <div class="aui-content">
+        <div class="input-box">
+            <ul class="aui-list aui-form-list">
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label-icon">
+                            <i class="aui-iconfont aui-icon-mobile"></i>
+                        </div>
+                        <div class="aui-list-item-input">
+                            <input type="text" placeholder="请输入手机号" id="phone" onchange="checkPhonenum(this)">
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label-icon">
+                            <i class="aui-iconfont aui-icon-mail"></i>
+                        </div>
+                        <div class="aui-list-item-input">
+                            <input type="text" placeholder="请输入邮箱" id="email" onchange="checkEmail(this)">
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label-icon">
+                            <i class="aui-iconfont aui-icon-unlock" style="padding-left:3px;"></i>
+                        </div>
+                        <div class="aui-list-item-input">
+                            <input type="password" placeholder="请设置密码" id="pwd1">
+                        </div>
+                        <div class="aui-list-item-label-icon" id="pwd_icon1" tapmode onclick="showPwd('1')">
+                            <i class="aui-iconfont aui-icon-display"></i>
+                        </div>
+                    </div>
+                </li>
+                <li class="aui-list-item">
+                    <div class="aui-list-item-inner">
+                        <div class="aui-list-item-label-icon">
+                            <i class="aui-iconfont aui-icon-lock"></i>
+                        </div>
+                        <div class="aui-list-item-input">
+                            <input type="password" placeholder="请确认密码" id="pwd2">
+                        </div>
+                        <div class="aui-list-item-label-icon" id="pwd_icon2" tapmode onclick="showPwd('2')">
+                            <i class="aui-iconfont aui-icon-display"></i>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="aui-row btn-row">
+            <div class="cancelBtn aui-col-xs-6" tapmode onclick="cancelReset()">重置</div>
+            <div class="submitBtn aui-col-xs-6" tapmode onclick="resetPwd()">确认</div>
+            </li>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript" src="../script/aui-dialog.js"></script>
+<script type="text/javascript" src="../script/aui-toast.js"></script>
+<script type="text/javascript">
+var toast
+    apiready = function() {
+        toast = new auiToast();
+        api.parseTapmode()
+        api.addEventListener({
+            name: 'closePage'
+        }, function(ret, err) {
+            api.closeWin()
+        });
+    };
+
+    // 找回密码
+    function resetPwd() {
+        var phone = $("#phone").val()
+        var email = $("#email").val()
+        var pwd1 = $("#pwd1").val()
+        var pwd2 = $("#pwd2").val()
+        console.log(phone + "-&&-" + email + "-&&-" + pwd1 + "-&&-" + pwd2);
+        if (phone && email && pwd1 && pwd2) {
+            $.ajax({
+                type: "post",
+                url: HEADER + 'app/meter/add_resetUserPassword.do',
+                data: {
+                    "phonenumber": phone,
+                    "email": email,
+                    "password": pwd1,
+                    "confirmPassword": pwd2
+                },
+                success: function(data) {
+                    console.log(JSON.stringify(data));
+                    if (data.code === 1) {
+                        toast.success({
+                            title: "新密码设置成功！",
+                            duration: 2000
+                        });
+                    } else {
+                        toast.fail({
+                            title: data.msg,
+                            duration: 2000
+                        });
+                    }
+                },
+                error: function(err) {
+                    console.log(JSON.stringify(err));
+                }
+            })
+        } else {
+            alert("请认真填写，均不能为空！")
+        }
+    }
+
+
+    // 重置修改密码
+    function cancelReset() {
+         $("#phone").val("")
+         $("#email").val("")
+         $("#pwd1").val("")
+         $("#pwd2").val("")
+    }
+
+    // 检测邮箱格式
+    function checkEmail(dom) {
+        var email = $(dom).val()
+        var re = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/;
+        if (!re.test(email)) {
+            alert("输入的邮箱格式不正确！");
+            $(dom).val("")
+            $(dom).blur()
+        }
+    }
+
+    // 检测手机格式
+    function checkPhonenum(dom) {
+        var myreg = /^[1][3,4,5,7,8][0-9]{9}$/;
+        var phonenumber = $(dom).val()
+        if (!myreg.test(phonenumber)) {
+            alert("输入的手机号码格式不正确!");
+            $(dom).val("")
+            $(dom).blur()
+        }
+    }
+
+    // 切换密码为可见或不可见
+    function showPwd(type) {
+        var dom = "#pwd" + type
+        var flag = $(dom).prop("type")
+        if (flag == "password") {
+            $(dom).prop("type", "text")
+            $("#pwd_icon" + type).html('<i class="aui-iconfont aui-icon-hide"></i>')
+        } else if (flag == "text") {
+            $(dom).prop("type", "password")
+            $("#pwd_icon" + type).html('<i class="aui-iconfont aui-icon-display"></i>')
+        }
+    }
+</script>
+
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>预付费</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css" />
+    <style>
+        html,
+        body {
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+            /*background: url("../image/login/login_bg.png") left top no-repeat;
+          background-size: 100%;*/
+        }
+
+        .aui-bar.aui-bar-nav.aui-row {
+            color: #ffffff;
+            background: rgb(45, 140, 240)!important;
+            border: none;
+        }
+
+        .aui-bar-nav .aui-btn .aui-iconfont {
+            color: #fff;
+        }
+
+        .detailInfo {
+            position: absolute;
+            top: 3.4rem;
+            width: 100%;
+            background-color: #ffffff;
+        }
+
+        .detailInfo .top {
+            width: 100%;
+            background: url("../image/meters/bg-curve.png") left top no-repeat;
+            background-size: 100%;
+        }
+
+        .detailInfo .top div {
+            width: 100%;
+            text-align: center;
+            color: #ffffff;
+            font-size: 2rem;
+        }
+
+        .detailInfo .top p {
+            width: 100%;
+            text-align: center;
+            color: #ffffff;
+            height: 2.1rem;
+        }
+
+        .detailInfo .bottom {
+            padding: 1rem 0px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            background: #ffffff;
+        }
+
+        .detailInfo .bottom>div {
+            width: 88%;
+            display: flex;
+            flex-flow: row;
+        }
+
+        .detailInfo .bottom .right {
+            margin-left: 5px;
+        }
+
+        .chooseMoney {
+            background-color: #ffffff;
+            position: absolute;
+            top: 15.3rem;
+            width: 100%;
+        }
+
+        .chooseMoney input,
+        .chooseMoney p,
+        .chooseMoney .amount,
+        .chooseMoney .btn-pay {
+            width: 86%;
+            margin: auto;
+            text-align: center;
+            color: rgb(128, 132, 143);
+        }
+
+        .chooseMoney p:first-of-type {
+            width: 90%;
+            color: rgb(221, 222, 225);
+        }
+
+        .chooseMoney p:nth-of-type(2) {
+            margin: 0.3rem auto;
+        }
+
+        .chooseMoney input {
+            border: 1px solid rgb(221, 222, 225);
+            border-radius: 8px;
+            margin: 1rem auto;
+            color: rgb(45, 140, 240);
+        }
+
+        .chooseMoney .amount div:not(:first-of-type) {
+            margin-top: 3px;
+        }
+
+        .chooseMoney .amount div span {
+            display: inline-block;
+            height: 2.25rem;
+            line-height: 2.25rem;
+            width: 30%;
+            border: 1px solid rgb(221, 222, 225);
+            color: #000000;
+            border-radius: 5px;
+        }
+
+        .chooseMoney .amount div span:not(:last-of-type) {
+            margin-right: 3%;
+        }
+        /*.chooseMoney .amount div span:hover,.chooseMoney .amount div span:active{
+          background: rgb(45,140,240);
+          color: #ffffff;
+        }*/
+
+        .chooseMoney .btn-pay {
+            height: 2.25rem;
+            line-height: 2.25rem;
+            background: rgb(45, 140, 240);
+            color: #ffffff;
+            border-radius: 20px;
+            margin: 1rem auto;
+        }
+
+        input::-webkit-input-placeholder {
+            /* WebKit browsers */
+            color: rgb(45, 140, 240);
+        }
+
+        input:-moz-placeholder {
+            /* Mozilla Firefox 4 to 18 */
+            color: rgb(45, 140, 240);
+        }
+
+        input::-moz-placeholder {
+            /* Mozilla Firefox 19+ */
+            color: rgb(45, 140, 240);
+        }
+
+        input:-ms-input-placeholder {
+            /* Internet Explorer 10+ */
+            color: rgb(45, 140, 240);
+        }
+    </style>
+</head>
+
+<body ontouchstart>
+    <header class="aui-bar aui-bar-nav aui-row">
+        <div class="aui-pull-left aui-btn" onclick="turnBack()" tapmode>
+            <i class="aui-iconfont aui-icon-left"></i>
+        </div>
+        <div class="aui-title">预付费</div>
+    </header>
+    <div class="detailInfo">
+        <div class="top">
+            <div class='pay' id="remaining_balance"></div>
+            <p>剩余金额(元)</p>
+        </div>
+        <div class="bottom">
+            <div>
+                <div class="left">
+                    <img src="../image/meters/meterList_icon.png" alt="">
+                </div>
+                <div class="right">
+                    <p><span>电表编号:</span><span id="mid"></span></p>
+                    <p><span>小区名称:</span><span id="location_name"></span></p>
+                    <p><span>签约人:</span><span id="user_name"></span></p>
+                    <p><span>剩余电量(Kwh):</span><span id="remaining_battery"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="chooseMoney">
+        <input type="text" id="money" placeholder="手动输入充值金额">
+        <p>———————— OR ————————</p>
+        <p>请选择充值金额</p>
+        <div class="amount">
+            <div>
+                <span>0.10元</span>
+                <span>0.11元</span>
+                <span>0.12元</span>
+            </div>
+            <div>
+                <span>50元</span>
+                <span>100元</span>
+                <span>200元</span>
+            </div>
+            <div>
+                <span>300元</span>
+                <span>400元</span>
+                <span>500元</span>
+            </div>
+            <div>
+                <span>600元</span>
+                <span>700元</span>
+                <span>800元</span>
+            </div>
+        </div>
+        <div class='btn-pay' onclick="goToCashier()">充值</div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript" src="../script/aui-dialog.js"></script>
+<script type="text/javascript" src="../script/aui-toast.js"></script>
+<script type="text/javascript">
+    var money='';
+    var mid='';
+
+    apiready = function() {
+        var dataList = api.pageParam;
+        mid = dataList.mid;
+        initPage(dataList);
+    };
+    //初始化页面数据
+    function initPage(dataList) {
+        $("#remaining_balance").html(dataList.remaining_balance);
+        $("#location_name").html(dataList.location_name);
+        $("#mid").html(dataList.mid);
+        $("#remaining_battery").html(dataList.remaining_battery);
+        $("#user_name").html(dataList.user_name);
+    }
+    //前往收银台页面
+    function goToCashier() {
+        if (($("#money").val() == '') && (money == '')) {
+            api.alert({
+                title: "提示信息",
+                msg: "请输入或者选择金额!"
+            });
+        } else {
+            api.openWin({
+                name: 'cashier',
+                url: 'cashier.html',
+                pageParam:{
+                  mid:mid,
+                  money:($("#money").val()*1)||money          //手动输入优先级较高
+                }
+            });
+        }
+    }
+    //选择进额
+    $(".amount span").on("click", function() {
+        $(".amount span").css({
+            'color': '#000000',
+            'background': '#ffffff'
+        });
+        $(this).css({
+            'background': 'rgb(45,140,240)',
+            'color': '#ffffff'
+        })
+        money = $(this).html().split('元')[0];
+    })
+</script>
+
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>收银台</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css" />
+    <style>
+        html,
+        body {
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+        }
+
+        .aui-bar.aui-bar-nav.aui-row {
+            color: #ffffff;
+            background: rgb(45, 140, 240)!important;
+            border: none;
+        }
+
+        .aui-bar-nav .aui-btn .aui-iconfont {
+            color: #fff;
+        }
+
+        .detailInfo {
+            position: absolute;
+            top: 3.4rem;
+            width: 100%;
+            background-color: #ffffff;
+        }
+
+        .detailInfo .top {
+            width: 100%;
+            background: url("../image/meters/bg-curve.png") left top no-repeat;
+            background-size: 100%;
+        }
+
+        .detailInfo .top div {
+            width: 100%;
+            text-align: center;
+            color: #ffffff;
+            font-size: 2rem;
+        }
+
+        .detailInfo .top p {
+            width: 100%;
+            text-align: center;
+            color: #ffffff;
+            height: 2.1rem;
+        }
+
+        .detailInfo .center {
+            width: 100%;
+        }
+
+        .detailInfo .center p {
+            text-align: center;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .detailInfo .center p:nth-last-of-type(2) {
+            font-size: 1.25rem;
+            color: #000000;
+        }
+
+        .detailInfo .bottom {
+            height: 1.2rem;
+            width: 86%;
+            margin: 1.5rem auto 0 auto;
+        }
+
+        .detailInfo .bottom .aui-col-xs-11 {
+            background: url("../image/meters/alipay_icon.png") left center no-repeat;
+            text-indent: 1.5rem;
+            ;
+        }
+
+        .detailInfo .btn-pay {
+            height: 2.25rem;
+            line-height: 2.25rem;
+            background: rgb(45, 140, 240);
+            color: #ffffff;
+            border-radius: 20px;
+            margin: 8rem auto 0 auto;
+            width: 86%;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="aui-bar aui-bar-nav aui-row">
+        <div class="aui-pull-left aui-btn" onclick="turnBack()" tapmode>
+            <i class="aui-iconfont aui-icon-left"></i>
+        </div>
+        <div class="aui-title">收银台</div>
+    </header>
+    <div class="detailInfo">
+        <div class="top">
+            <div class='pay'>100.00</div>
+            <p>订单金额(元)</p>
+        </div>
+        <div class="center">
+            <p>需支付</p>
+            <p>￥<span class='pay'>100.00</span></p>
+            <p>支付方式</p>
+        </div>
+        <div class="bottom">
+            <div class="aui-col-xs-11">支付宝</div>
+            <div class="aui-col-xs-1"><input class="aui-radio" type="radio" name="demo1"></div>
+        </div>
+        <div class='btn-pay' onclick="createPayOrder()">确认支付</div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript" src="../script/aui-dialog.js"></script>
+<script type="text/javascript" src="../script/aui-toast.js"></script>
+<script type="text/javascript">
+    var dataList;
+    var checkedFlag = false;
+    var orderInfo; //保存当前订单的信息，便于传给支付失败页面重新充值
+
+    apiready = function() {
+        dataList = api.pageParam;
+        $(".pay").html(dataList.money);
+    };
+
+    //生成订单
+    function createPayOrder() {
+        var aliPay = api.require('aliPayPlus');
+        if ($("input[type='radio']").prop("checked") == true) { //选择支付方式才能支付
+            $.ajax({
+                type: 'get',
+                data: {
+                    mid: dataList.mid,
+                    money: dataList.money * 1
+                },
+                url: HEADER + 'alipay/create_pay_order.do',
+                success: function(data) {
+                    console.log(JSON.stringify(data));
+                    orderInfo = data.data.result;
+                    aliPay.payOrder({
+                        orderInfo: orderInfo
+                    }, function(response, err) {
+                        console.log('>>>>' + JSON.stringify(response));
+                        if (response.code == 9000 || response.code == "9000") {
+                            //成功回调
+                            // api.alert({
+                            //     title: "提示信息",
+                            //     msg: "支付成功!"
+                            // });
+                            // api.closeWin();
+                            api.openWin({
+                                name: 'payResult',
+                                url: 'payResult.html',
+                                pageParam: {
+                                    mid: dataList.mid,
+                                    money: dataList.money * 1,
+                                    orderInfo: orderInfo,
+                                    status:'success'
+                                }
+                            });
+                        } else {
+                            api.openWin({
+                                name: 'payResult',
+                                url: 'payResult.html',
+                                pageParam: {
+                                    mid: dataList.mid,
+                                    money: dataList.money * 1,
+                                    orderInfo: orderInfo,
+                                    status:'fail'
+                                }
+                            });
+                        }
+                    })
+                }
+            })
+        } else {
+            api.alert({
+                title: "提示信息",
+                msg: "请选择支付方式!"
+            });
+        }
+    }
+    //改变单选的状态
+    $("input[type='radio']").on("click", function() {
+        if (checkedFlag) {
+            $(this).prop("checked", false);
+            checkedFlag = !checkedFlag;
+        } else {
+            $(this).prop("checked", true);
+            checkedFlag = !checkedFlag;
+        }
+    });
+</script>
+
+</html>

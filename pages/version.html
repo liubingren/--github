@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>版本</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css" />
+    <style>
+        html,
+        body {
+            background: white
+        }
+
+        .imgBox {
+            padding: 2.4rem 0 0.5rem 0;
+            width: 100%;
+        }
+
+        .imgBox img {
+            width: 15%;
+            margin-left: 42.5%;
+        }
+
+        .textBox {
+            margin-top: 0.5rem
+        }
+
+        p {
+            color: #484848;
+            text-align: center;
+            letter-spacing: 1px;
+            font-size: 0.7rem;
+            padding-bottom: 0.1rem
+        }
+
+        p:nth-of-type(2) {
+            font-weight: 700
+        }
+
+        .updateBtn {
+            height: 2.1rem;
+            line-height: 2.1rem;
+            width: 80%;
+            margin: 1.5rem 0 0 10%;
+            background: #aaa;
+            color: #484848;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            text-align: center;
+            letter-spacing: 2px;
+            font-weight: 300
+        }
+    </style>
+</head>
+
+<body>
+    <header class="aui-bar aui-bar-nav">
+        <div class="aui-pull-left aui-btn" onclick="turnBack()" tapmode>
+            <span class="aui-iconfont aui-icon-left"></span>
+        </div>
+        <div class="aui-title">版本信息</div>
+    </header>
+    <div class="aui-content">
+        <div class="imgBox">
+            <img src="../image/setting/wlgLogo.png">
+        </div>
+        <div class="textBox">
+            <p id="currentVersion">当前版本：0.0.2</p>
+            <p id="newVersion">最新版本：0.0.2</p>
+        </div>
+        <div class="updateBtn" tapmode onclick="updateApp()">当前版本已为最新版</div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript" src="../script/aui-toast.js"></script>
+<script type="text/javascript">
+    var source;
+    apiready = function() {
+        api.parseTapmode()
+        checkUpdate()
+        api.addEventListener({
+            name: 'closePage'
+        }, function(ret, err) {
+            api.closeWin()
+        });
+    };
+
+
+    //检测新版本
+    function checkUpdate() {
+        var mam = api.require('mam');
+        mam.checkUpdate(function(ret, err) {
+            console.log(JSON.stringify(ret))
+            if (ret) {
+                var result = ret.result;
+                if (result.update == true && result.closed == false) {
+                    source = result.source
+                    $("#newVersion").html("最新版本：" + result.version)
+                    $(".updateBtn").html("升级为最新版")
+                    $(".updateBtn").css({
+                        "background": "#2d8cf0",
+                        "color": "#fff"
+                    })
+                    $(".updateBtn").prop("disabled",false)
+                        /*background: #2e59bd;*/
+                        /*color: white;*/
+                } else {
+                    $(".updateBtn").prop("disabled", true)
+                }
+            }
+        });
+    }
+
+    // 升级
+    function updateApp() {
+        // alert("SOURCE:" + source)
+        if (api.systemType == "android") {
+            api.download({
+                url: source,
+                report: true
+            }, function(ret, err) {
+                if (ret && 0 == ret.state) { /* 下载进度 */
+                    api.toast({
+                        msg: "正在下载应用" + ret.percent + "%",
+                        duration: 2000
+                    });
+                }
+                if (ret && 1 == ret.state) { /* 下载完成 */
+                    var savePath = ret.savePath;
+                    api.installApp({
+                        appUri: savePath
+                    });
+                }
+            });
+        }
+        if (api.systemType == "ios") {
+            api.installApp({
+                appUri: source
+            });
+        }
+    }
+</script>
+
+</html>

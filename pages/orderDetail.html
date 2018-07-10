@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <title>订单详情</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../css/aui.2.0.css" />
+    <link rel="stylesheet" type="text/css" href="../css/common.css" />
+    <style>
+        html,
+        body {
+            padding: 0px;
+            margin: 0px;
+            width: 100%;
+            height: 100%;
+            background: rgb(235, 236, 238);
+        }
+
+        .aui-bar.aui-bar-nav.aui-row {
+            color: #ffffff;
+            background: rgb(45, 140, 240)!important;
+            border: none;
+            padding-top: 1.25rem;
+        }
+
+        .aui-bar-nav .aui-btn .aui-iconfont {
+            color: #fff;
+        }
+
+        .tips {
+            height: 3rem;
+            line-height: 3rem;
+            width: 100%;
+            position: absolute;
+            top: 3.5rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+        }
+
+        .tips img {
+            width: 1rem;
+            height: 1rem;
+            margin: 0 0.5rem;
+        }
+
+        .orderDetail-wrap {
+            position: absolute;
+            top: 6rem;
+            width: 100%;
+        }
+
+        .orderDetail-wrap .orderDetail {
+            background: #ffffff;
+            width: 90%;
+            margin: 2rem auto 1rem auto;
+        }
+
+        .orderDetail-wrap .orderDetail .top {
+            height: 2rem;
+            line-height: 2rem;
+            font-size: 0.75rem;
+            border-bottom: 1px dotted rgba(187, 190, 196, 0.6);
+            position: relative;
+            ;
+        }
+
+        .orderDetail-wrap .orderDetail .top div {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: rgb(235, 236, 238);
+            position: absolute;
+            bottom: -0.5rem;
+        }
+
+        .orderDetail-wrap .orderDetail .top div.circle-1 {
+            left: -0.5rem;
+        }
+
+        .orderDetail-wrap .orderDetail .top div.circle-2 {
+            right: -0.5rem;
+        }
+
+        .orderDetail-wrap .orderDetail .top img {
+            margin: auto 0.25rem;
+        }
+
+        .orderDetail-wrap .orderDetail .bottom {
+            display: flex;
+            flex-flow: row;
+            align-items: center;
+            position: relative;
+            margin: 0.25rem auto;
+        }
+
+        .orderDetail-wrap .orderDetail .bottom .left {
+            width: 100%;
+        }
+
+        .orderDetail-wrap .orderDetail .bottom .left p {
+            text-indent: 0.95rem;
+            height: 1.2rem;
+            line-height: 1.2rem;
+            font-size: 0.6rem!important;
+        }
+
+        .orderDetail-wrap .orderDetail .bottom .right {
+            position: absolute;
+            right: 0;
+            min-width: 7rem;
+            height: 7rem;
+            line-height: 7rem;
+            text-align: center;
+            color: rgba(45, 140, 240, 0.7);
+            background: url("../image/meters/round_dashed.png") left top no-repeat;
+            background-size: 100% 100%;
+        }
+
+        .orderDetail-wrap .orderDetail .bottom .right span {
+            font-size: 1.5rem;
+        }
+
+        .btn-wrap {
+            width: 100%;
+            height: 1.75rem;
+            display: flex;
+            justify-content: center;
+            margin-top: 5rem;
+        }
+
+        .btn-wrap button {
+            background-color: rgb(237, 63, 20);
+            color: #ffffff;
+            width: 4.5rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="aui-bar aui-bar-nav aui-row">
+        <div class="aui-pull-left aui-btn" onclick="turnBack()" tapmode>
+            <i class="aui-iconfont aui-icon-left"></i>
+        </div>
+        <div class="aui-title">订单详情</div>
+    </header>
+    <div class="tips">
+        <img src="../image/meters/pending-payment.png" alt=""><span></span>
+    </div>
+    <div class="orderDetail-wrap">
+        <div class="orderDetail">
+            <div class="top">
+                <img src="../image/meters/order_icon.png" alt=""><span id="order_number"></span>
+                <div class='circle-1'></div>
+                <div class='circle-2'></div>
+            </div>
+            <div class="bottom">
+                <div class="left">
+
+                </div>
+                <div class="right">
+                    ￥<span></span>
+                </div>
+            </div>
+        </div>
+        <div class="btn-wrap">
+            <button tapmode type="button" name="button" onclick="payAgain()">重新支付</button>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="../script/common.js"></script>
+<script type="text/javascript" src="../script/aui-dialog.js"></script>
+<script type="text/javascript" src="../script/aui-toast.js"></script>
+<script type="text/javascript">
+    var dataList;
+    var order_number;
+    var id;
+    apiready = function() {
+      api.parseTapmode();
+        dataList = api.pageParam;
+        order_number = dataList.order_number;
+        id = dataList.id;
+        setTimeout(function() {
+            api.closeWin({
+                name: 'orderList',
+                url: 'orderList.html'
+            });
+        }, 10);
+        initpage();
+    };
+    //初始化页面
+    function initpage() {
+        $.ajax({
+            type: 'get',
+            data: {
+                id: id
+            },
+            url: HEADER + 'app/meterOrders/check_getMeterOrdersDetail.do',
+            success: function(data) {
+                console.log(JSON.stringify(data));
+                renderPage(data.data);
+            }
+        })
+    }
+    //渲染页面
+    function renderPage(data) {
+        if (dataList.order_status_value == "待付款" || dataList.order_status_value == "支付失败") {
+            $(".btn-wrap button").css("display", "block");
+        }
+
+        switch (dataList.order_status_value) {
+            case '待付款':
+                $(".btn-wrap button").css("display", "block");
+                $(".tips span").html('待付款');
+                $(".tips img").attr('src', "../image/meters/pending-payment.png");
+                $(".tips").css("background", "#ff9900");
+                break;
+            case '已完成':
+                $(".tips span").html('已完成');
+                $(".tips").css("background", "#19be6b");
+                $(".tips img").attr('src', "../image/meters/finish-payment.png");
+                break;
+            case '未充电':
+                $(".tips span").html('等待充电');
+                $(".tips").css("background", "#2d8cf0");
+                $(".tips img").attr('src', "../image/meters/pending-payment.png");
+                break;
+            case '未充电':
+                $(".tips span").html('未充电');
+                $(".tips").css("background", "#2d8cf0");
+                $(".tips img").attr('src', "../image/meters/pending-payment.png");
+                break;
+            case '支付失败':
+                $(".btn-wrap button").css("display", "block");
+                $(".tips span").html('支付失败');
+                $(".tips").css("background", "#ed3f14");
+                $(".tips img").attr('src', "../image/meters/fail-payment.png");
+                break;
+            case '已关闭':
+                $(".tips span").html('已关闭');
+                $(".tips").css("background", "#bbbec4");
+                $(".tips img").attr('src', "../image/meters/pending-payment.png");
+        }
+
+        var str = '';
+        str += '<p>小区名称:' + data.location_name + '</p>';
+        str += '<p>电表编号:' + data.mid + '</p>';
+        str += '<p>用户编号:' + data.usercode + '</p>';
+        str += '<p>用户名称:' + data.username + '</p>';
+        str += '<p>充值金额(元):' + data.order_money + '</p>';
+        str += '<p>订单状态:' + data.order_status_value + '</p>';
+        str += '<p>下单时间:' + data.order_time + '</p>';
+
+        $(".orderDetail-wrap .bottom .left").html(str);
+        $("#order_number").html('订单号:' + data.order_number)
+        $(".orderDetail-wrap .bottom .right span").html(data.order_money);
+    }
+    //重新支付
+    function payAgain() {
+        $.ajax({
+            type: 'get',
+            data: {
+                order_number: order_number
+            },
+            url: HEADER + 'alipay/reCreateMeterOrders.do',
+            success: function(data) {
+                var aliPay = api.require('aliPayPlus');
+                var orderInfo = data.data.result;
+                aliPay.payOrder({
+                    orderInfo: orderInfo
+                }, function(response, err) {
+                    if (response.code == 9000 || response.code == "9000") {
+                        //成功回调
+                        api.alert({
+                            title: "提示信息",
+                            msg: "支付成功!"
+                        });
+
+                        api.openWin({
+                            name: 'payResult',
+                            url: 'payResult.html',
+                            pageParam: {
+                                status: 'success',
+                                from: "orderDetail"
+                            }
+                        });
+
+                    } else {
+                        api.openWin({
+                            name: 'payResult',
+                            url: 'payResult.html',
+                            pageParam: {
+                                orderInfo: orderInfo,
+                                status: 'fail',
+                                from: "orderDetail"
+                            }
+                        });
+                    }
+                })
+            }
+        })
+
+    }
+</script>
+
+</html>
